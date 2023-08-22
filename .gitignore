@@ -1,0 +1,13 @@
+.idea/
+chromedriver/
+test_pages/
+browsermob_proxy/
+__pycache__/
+*.html
+*.pkl
+*.txt
+*.png
+*.jpg
+*.json
+*.log
+*.ui
