@@ -13,6 +13,8 @@ class pixiv_spider:
         self.cookies = {}
         self.username = username
         self.password = password
+        if not os.path.exists('./images'):
+            os.mkdir('./images')
         self.cookie_status = os.path.exists('./cookies.pkl')
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '

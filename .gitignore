@@ -5,9 +5,13 @@ browsermob_proxy/
 __pycache__/
 *.html
 *.pkl
-*.txt
+#*.txt
 *.png
 *.jpg
 *.json
 *.log
 *.ui
+*.exe
+*.spec
+build/
+dist/
