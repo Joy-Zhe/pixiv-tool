@@ -1,36 +1,23 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
 from downloader import *
-from MainWindow import *
-from LoginWindow import *
 
-# class LoginWindow(QDialog, Ui_LoginWindow):
-#     def __init__(self, parent=None):
-#         super(LoginWindow, self).__init__(parent)
-#         self.setupUi(self)
 
-class MyWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, parent=None):
-        super(MyWindow, self).__init__(parent)
+class MainProcess():
+    def __init__(self):
         self.spider = pixiv_spider()
         self.spider.install_dependency()
-        self.setupUi(self)
-        self.rank_download_button.clicked.connect(self.rank_download_event)
-        self.actionLogin_to_Pixiv.triggered.connect(self.open_login_window)
-        self.login_window = None  # Initialize login window as None
-        self.pid_download.clicked.connect(self.pid_download_event)
 
     def rank_download_event(self):
-        number = self.rank_cnt.toPlainText()
-        print(number)
-        number = int(number)
-        self.rank_cnt.setText('')
+        number = eval(input('input the number of images you want to download in today\'s ranking list:'))
+        # print(type(number))
+        while type(number) != int:
+            number = eval(input('number must be an integer among [1, 500]:'))
+        while number < 1 or number > 500:
+            number = eval(input('number must be an integer among [1, 500]:'))
         self.spider.download_ranking_images(num=number)
 
     def pid_download_event(self):
-        pid_str = self.pid.toPlainText()
+        pid_str = input('input the pid of the artwork of the image/comic:')
         url, cnt = self.spider.get_download_url(pid_str)
-        self.pid.setText('')
         self.spider.download_image(url, cnt)
 
     def open_login_window(self):
@@ -39,8 +26,13 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         # self.login_window.exec_()  # Show the login window
         return None
 
+
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    myWin = MyWindow()
-    myWin.show()
-    sys.exit(app.exec_())
+    mode = input('Choose mode: {rank list}(r) of {single img}(s):(please input r/s)')
+    p = MainProcess()
+    while mode != 'r' and mode != 's':
+        mode = input('No such mode, retry:(r/s)')
+    if mode == 's':
+        p.pid_download_event()
+    elif mode == 'r':
+        p.rank_download_event()

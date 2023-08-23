@@ -3,6 +3,7 @@ chromedriver/
 test_pages/
 browsermob_proxy/
 __pycache__/
+ranking_list/
 *.html
 *.pkl
 #*.txt

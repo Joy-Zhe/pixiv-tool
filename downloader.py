@@ -13,6 +13,7 @@ class pixiv_spider:
         self.cookies = {}
         self.username = username
         self.password = password
+        self.max_rank = 1
         if not os.path.exists('./images'):
             os.mkdir('./images')
         self.cookie_status = os.path.exists('./cookies.pkl')
@@ -153,7 +154,7 @@ class pixiv_spider:
         return download_url, page_count
 
     def download_image(self, url, page_count=1):
-        print(url)
+        # print(url)
         if url == None:
             url = 'https://i.pximg.net/img-original/img/2023/04/07/10/22/57/106942074_p0.jpg'
             page_count = 1
@@ -177,18 +178,21 @@ class pixiv_spider:
         for i in range(1, 11):
             ranking_json[i] = f'https://www.pixiv.net/ranking.php?p={i}&format=json'
             response_tmp = requests.get(ranking_json[i], headers=self.headers)
-            with open(f'./ranking_list/rankinglist{i}.json', 'w+', encoding='utf-8') as fp:
-                fp.write(response_tmp.text)
+            # if not os.path.exists('./ranking_list'):
+            #     os.mkdir('./ranking_list')
+            # with open(f'./ranking_list/rankinglist{i}.json', 'w+', encoding='utf-8') as fp:
+            #     fp.write(response_tmp.text)
             response_list.append(response_tmp)
             info = response_tmp.json()
-            for j in range(0, 50):
+            for j in range(0, len(info['contents'])):
                 pid = info['contents'][j]['illust_id']
                 # print(pid)
                 pids.append(pid)
         # print(len(pids))
+        self.max_rank = len(pids)
         return pids
 
-    def download_ranking_images(self, num=500):
+    def download_ranking_images(self, num=498):
         pids = self.get_ranking_info()
         i = 0
         for pid in pids:
