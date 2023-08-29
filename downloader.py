@@ -18,9 +18,7 @@ class pixiv_spider:
             os.mkdir('./images')
         self.cookie_status = os.path.exists('./cookies.pkl')
         self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/115.0.0.0'
-                          'Safari/537.36 Edg/115.0.1901.200',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0Safari/537.36 Edg/115.0.1901.200',
             'Referer': 'https://www.pixiv.net/',
         }
 
@@ -143,8 +141,8 @@ class pixiv_spider:
         # print(url)  # for debug
         response = requests.get(url=url, headers=self.headers)
         # print(url)
-        with open('./test_pages/get_original_url_' + str(pid) + '.json', 'w+', encoding='utf-8') as fp:
-            fp.write(response.text)
+        # with open('./test_pages/get_original_url_' + str(pid) + '.json', 'w+', encoding='utf-8') as fp:
+        #     fp.write(response.text)
         # print('get the information of image' + str(pid))
         img_info = response.json()
         download_url = img_info['body']['urls']['original']
@@ -176,7 +174,7 @@ class pixiv_spider:
         response_list = []
         pids = []
         for i in range(1, 11):
-            ranking_json[i] = f'https://www.pixiv.net/ranking.php?p={i}&format=json'
+            ranking_json[i] = f'https://www.pixiv.net/ranking.php?mode=weekly&p={i}&format=json'
             response_tmp = requests.get(ranking_json[i], headers=self.headers)
             # if not os.path.exists('./ranking_list'):
             #     os.mkdir('./ranking_list')

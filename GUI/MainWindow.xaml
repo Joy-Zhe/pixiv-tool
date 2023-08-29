@@ -1,0 +1,28 @@
+﻿<Window x:Class="GUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GUI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <StackPanel>
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Height="30" Width="342">
+                <Label Content="排行榜下载" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <ComboBox x:Name="DownloadOptions" Width="84" SelectionChanged="DownloadOptions_SelectionChanged">
+                    <ComboBoxItem Content="全部" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                    <ComboBoxItem Content="插画" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                    <ComboBoxItem Content="漫画" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                </ComboBox>
+                <Button Content="下载" HorizontalAlignment="Right" x:Name="RankDownloadBtn" Click="RankDownloadBtn_Click" Width="114"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Height="30" Width="342">
+                <Label Content="通过PID下载作品" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"/>
+                <TextBox x:Name="PIDtext"  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="NoWrap" Text="106942074" Width="120" TextChanged="PIDtext_TextChanged"/>
+                <Button Content="下载" x:Name="PidDownloadBtn" Click="pidDownloadBtn_Click" Width="114" Height="30"/>
+            </StackPanel>
+        </StackPanel>
+        <Label Name="testLabel" Content="Label" HorizontalAlignment="Left" Margin="0,193,0,0" VerticalAlignment="Top" Height="129" Width="700"/>
+    </Grid>
+</Window>
