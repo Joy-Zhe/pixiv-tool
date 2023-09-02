@@ -7,12 +7,10 @@ ranking_list/
 .vs/
 bin/
 obj/
-images/
 *.html
 *.pkl
-#*.txt
-*.png
 *.jpg
+*.txt
 *.json
 *.log
 *.ui
