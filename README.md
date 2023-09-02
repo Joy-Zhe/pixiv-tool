@@ -1,3 +1,4 @@
 # pixiv-tool
 ---
-+ Choose download from today's ranking list or a single artwork
++ 使用前需要一个登录后的Cookie
++ ![./image/setting.png]
