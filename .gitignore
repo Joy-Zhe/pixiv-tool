@@ -4,6 +4,10 @@ test_pages/
 browsermob_proxy/
 __pycache__/
 ranking_list/
+.vs/
+bin/
+obj/
+images/
 *.html
 *.pkl
 #*.txt
