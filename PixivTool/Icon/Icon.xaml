@@ -1,0 +1,9 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ImageSource x:Key="Download">/Icon/download.png</ImageSource>
+    <ImageSource x:Key="Icon">/Icon/Icon.ico</ImageSource>
+    <ImageSource x:Key="Settings">/Icon/setting.png</ImageSource>
+    <ImageSource x:Key="Star">/Icon/star.png</ImageSource>
+    <ImageSource x:Key="Search">/Icon/search.png</ImageSource>
+    <ImageSource x:Key="Rank">/Icon/rank.png</ImageSource>
+</ResourceDictionary>

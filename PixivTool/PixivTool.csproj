@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net7.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Icon\download.png" />
+      <Resource Include="Icon\download.png" />
+      <None Remove="Icon\Icon.ico" />
+      <Resource Include="Icon\Icon.ico" />
+      <None Remove="Icon\rank.png" />
+      <Resource Include="Icon\rank.png" />
+      <None Remove="Icon\search.png" />
+      <Resource Include="Icon\search.png" />
+      <None Remove="Icon\setting.png" />
+      <Resource Include="Icon\setting.png" />
+      <None Remove="Icon\star.png" />
+      <Resource Include="Icon\star.png" />
+    </ItemGroup>
+
+</Project>
