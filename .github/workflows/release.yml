@@ -1,0 +1,72 @@
+﻿name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore pixivTool.sln
+
+      - name: Build
+        run: dotnet build pixivTool.sln -c Release --no-restore
+
+      - name: Publish WPF App (win-x64)
+        run: |
+          dotnet publish PixivTool/PixivTool.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            /p:PublishSingleFile=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:PublishTrimmed=false `
+            -o out/pixivtool-win-x64
+
+      - name: Publish CLI (win-x64)
+        run: |
+          dotnet publish PixivTool.CLI/PixivTool.CLI.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            /p:PublishSingleFile=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:PublishTrimmed=false `
+            -o out/pixivtool-cli-win-x64
+
+      - name: Pack Release Artifacts
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path out/pixivtool-win-x64/* `
+            -DestinationPath out/pixivtool-win-x64.zip `
+            -Force
+          Compress-Archive `
+            -Path out/pixivtool-cli-win-x64/* `
+            -DestinationPath out/pixivtool-cli-win-x64.zip `
+            -Force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/pixivtool-win-x64.zip
+            out/pixivtool-cli-win-x64.zip
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
