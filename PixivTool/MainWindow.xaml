@@ -3,22 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PixivTool"
         mc:Ignorable="d"
-        Title="PixivTool"  
+        Title="PixivTool"
         Icon="{StaticResource Icon}"
-        MinHeight="600" 
-        MinWidth="800" 
+        MinHeight="600"
+        MinWidth="800"
         Height="600"
         Width="800"
         WindowStartupLocation="CenterScreen">
     <Grid>
-<Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
             <ColumnDefinition Width="120"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
-        <StackPanel Background="#00509C" 
+
+        <StackPanel Background="#00509C"
                     Grid.Column="0"
                     Orientation="Vertical"
                     HorizontalAlignment="Left">
@@ -30,17 +29,19 @@
                         <VirtualizingStackPanel Orientation="Vertical"/>
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
-                <MenuItem Name="Rank"  Style="{StaticResource MenuItemStyle}" Click="Rank_OnClick">
+
+                <MenuItem Name="Rank" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenRankCommand}">
                     <MenuItem.Header>
                         <Grid>
                             <TextBlock Foreground="White" Text="RANK" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Grid>        
+                        </Grid>
                     </MenuItem.Header>
                     <MenuItem.Icon>
-                        <Image Source="{StaticResource Rank}" /> 
+                        <Image Source="{StaticResource Rank}" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Name="Pid" Style="{StaticResource MenuItemStyle}" Click="Pid_OnClick"> 
+
+                <MenuItem Name="Pid" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenPidCommand}">
                     <MenuItem.Header>
                         <Grid>
                             <TextBlock Foreground="White" Text="PID" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -50,7 +51,8 @@
                         <Image Source="{StaticResource Search}" Width="20" Height="20" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Name="Star" Style="{StaticResource MenuItemStyle}" Click="Star_OnClick">
+
+                <MenuItem Name="Star" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenStarCommand}">
                     <MenuItem.Header>
                         <Grid>
                             <TextBlock Foreground="White" Text="Star" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -59,7 +61,9 @@
                     <MenuItem.Icon>
                         <Image Source="{StaticResource Star}" />
                     </MenuItem.Icon>
-                </MenuItem><MenuItem Name="Settings" Style="{StaticResource MenuItemStyle}" Click="Settings_OnClick">
+                </MenuItem>
+
+                <MenuItem Name="Settings" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenSettingsCommand}">
                     <MenuItem.Header>
                         <Grid>
                             <TextBlock Foreground="White" Text="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -70,8 +74,8 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </Menu>
-            
         </StackPanel>
+
         <Frame Grid.Column="1" Name="currentFrame" NavigationUIVisibility="Hidden" />
     </Grid>
 </Window>

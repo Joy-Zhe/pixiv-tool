@@ -1,150 +1,116 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using PixivTool.CoreBridge;
+using PixivTool.ViewModels;
 
-namespace PixivTool
+namespace PixivTool;
+
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    private readonly MainWindowViewModel _viewModel;
+    private static readonly Dictionary<string, Page> BufferPages = new();
+
+    private string _rankDownloadPath = "./rank/";
+    private string _pidDownloadPath = "./pids/";
+
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-            SettingsPage settingsPage;
-            if (BufferPages.ContainsKey("Settings"))
-            {
-                settingsPage = (SettingsPage)BufferPages["Settings"];
-            }
-            else
-            {
-                settingsPage = new SettingsPage();
-                BufferPages.Add("Settings", settingsPage);
-            }
-            // Event Connected
-            settingsPage.RankPathChanged += SetRankPath;
-            settingsPage.PidPathChanged += SetPidPath;
-        }
-        
-        private static readonly Dictionary<string, Page> BufferPages = new Dictionary<string, Page>();
-        private string RankDownloadPath = "./rank/";
-        private string PidDownloadPath = "./pids/";
+        InitializeComponent();
 
-        private void SetRankPath(string path)
-        {
-            RankDownloadPath = path;
-        }
+        CoreRuntime.EnsureInitialized();
+        _rankDownloadPath = CoreRuntime.Settings.RankDownloadPath;
+        _pidDownloadPath = CoreRuntime.Settings.PidDownloadPath;
 
-        public void SetPidPath(string path)
-        {
-            PidDownloadPath = path;
-        }
+        _viewModel = new MainWindowViewModel();
+        _viewModel.NavigateRequested += NavigateTo;
+        DataContext = _viewModel;
 
-        private void Rank_OnClick(object sender, RoutedEventArgs e)
+        var settingsPage = GetOrCreateSettingsPage();
+        settingsPage.RankPathChanged += SetRankPath;
+        settingsPage.PidPathChanged += SetPidPath;
+    }
+
+    private void SetRankPath(string path)
+    {
+        _rankDownloadPath = path;
+    }
+
+    private void SetPidPath(string path)
+    {
+        _pidDownloadPath = path;
+    }
+
+    private void NavigateTo(string pageKey)
+    {
+        switch (pageKey)
         {
-            try
+            case "Rank":
             {
-                RankPage page = new RankPage();
-                if(!BufferPages.ContainsKey("Rank"))
-                {
-                    page = new RankPage();
-                    page.SetPath(RankDownloadPath);
-                    BufferPages.Add("Rank", page);
-                }
-                else
-                {
-                    page = (RankPage)BufferPages["Rank"];
-                }
+                _rankDownloadPath = CoreRuntime.Settings.RankDownloadPath;
+                var page = GetOrCreateRankPage();
+                page.SetPath(_rankDownloadPath);
                 currentFrame.Navigate(page);
+                break;
             }
-            catch (Exception exception)
+            case "Pid":
             {
-                Console.WriteLine(exception);
-                throw;
+                _pidDownloadPath = CoreRuntime.Settings.PidDownloadPath;
+                var page = GetOrCreatePidPage();
+                page.SetPath(_pidDownloadPath);
+                currentFrame.Navigate(page);
+                break;
             }
+            case "Settings":
+                currentFrame.Navigate(GetOrCreateSettingsPage());
+                break;
+            case "Star":
+                currentFrame.Navigate(GetOrCreateStarPage());
+                break;
+        }
+    }
+
+    private static RankPage GetOrCreateRankPage()
+    {
+        if (!BufferPages.TryGetValue("Rank", out var page))
+        {
+            page = new RankPage();
+            BufferPages.Add("Rank", page);
         }
 
-        private void Pid_OnClick(object sender, RoutedEventArgs e)
+        return (RankPage)page;
+    }
+
+    private static PidPage GetOrCreatePidPage()
+    {
+        if (!BufferPages.TryGetValue("Pid", out var page))
         {
-            try
-            {
-                // Console.WriteLine(RankDownloadPath);
-                PidPage page = new PidPage();
-                if(!BufferPages.ContainsKey("Pid"))
-                {
-                    page = new PidPage();
-                    page.SetPath(PidDownloadPath);
-                    BufferPages.Add("Pid", page);
-                }
-                else
-                {
-                    page = (PidPage)BufferPages["Pid"];
-                }
-                currentFrame.Navigate(page);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
+            page = new PidPage();
+            BufferPages.Add("Pid", page);
         }
 
-        private void Settings_OnClick(object sender, RoutedEventArgs e)
+        return (PidPage)page;
+    }
+
+    private static SettingsPage GetOrCreateSettingsPage()
+    {
+        if (!BufferPages.TryGetValue("Settings", out var page))
         {
-            try
-            {
-                Page page = new Page();
-                if(!BufferPages.ContainsKey("Settings"))
-                {
-                    page = new SettingsPage();
-                    BufferPages.Add("Settings", page);
-                }
-                else
-                {
-                    page = BufferPages["Settings"];
-                }
-                currentFrame.Navigate(page);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
+            page = new SettingsPage();
+            BufferPages.Add("Settings", page);
         }
 
-        private void Star_OnClick(object sender, RoutedEventArgs e)
+        return (SettingsPage)page;
+    }
+
+    private static StarPage GetOrCreateStarPage()
+    {
+        if (!BufferPages.TryGetValue("Star", out var page))
         {
-            try
-            {
-                Page page = new StarPage();
-                if(!BufferPages.ContainsKey("Star"))
-                {
-                    page = new StarPage();
-                    BufferPages.Add("Star", page);
-                }
-                else
-                {
-                    page = BufferPages["Star"];
-                }
-                currentFrame.Navigate(page);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
+            page = new StarPage();
+            BufferPages.Add("Star", page);
         }
+
+        return (StarPage)page;
     }
 }
