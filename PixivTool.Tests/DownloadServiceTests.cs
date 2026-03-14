@@ -53,6 +53,15 @@ public sealed class DownloadServiceTests
             });
         }
 
+        public Task<IReadOnlyList<string>> GetIllustPageUrlsAsync(string pid, CancellationToken ct = default)
+        {
+            IReadOnlyList<string> result = new List<string>
+            {
+                "https://i.pximg.net/img-original/img/2026/01/01/00/00/00/123_p0.jpg"
+            };
+            return Task.FromResult(result);
+        }
+
         public Task<IReadOnlyList<RankingItem>> GetRankingAsync(RankingQuery query, CancellationToken ct = default)
         {
             IReadOnlyList<RankingItem> result = new List<RankingItem>();

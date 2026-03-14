@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using PixivTool.CoreBridge;
@@ -43,30 +44,47 @@ public partial class MainWindow : Window
 
     private void NavigateTo(string pageKey)
     {
-        switch (pageKey)
+        try
         {
-            case "Rank":
+            switch (pageKey)
             {
-                _rankDownloadPath = CoreRuntime.Settings.RankDownloadPath;
-                var page = GetOrCreateRankPage();
-                page.SetPath(_rankDownloadPath);
-                currentFrame.Navigate(page);
-                break;
+                case "Rank":
+                {
+                    _rankDownloadPath = CoreRuntime.Settings.RankDownloadPath;
+                    var page = GetOrCreateRankPage();
+                    page.SetPath(_rankDownloadPath);
+                    currentFrame.Navigate(page);
+                    break;
+                }
+                case "Pid":
+                {
+                    _pidDownloadPath = CoreRuntime.Settings.PidDownloadPath;
+                    var page = GetOrCreatePidPage();
+                    page.SetPath(_pidDownloadPath);
+                    currentFrame.Navigate(page);
+                    break;
+                }
+                case "Settings":
+                    currentFrame.Navigate(GetOrCreateSettingsPage());
+                    break;
+                case "Star":
+                    currentFrame.Navigate(GetOrCreateStarPage());
+                    break;
             }
-            case "Pid":
+        }
+        catch (System.Exception ex)
+        {
+            try
             {
-                _pidDownloadPath = CoreRuntime.Settings.PidDownloadPath;
-                var page = GetOrCreatePidPage();
-                page.SetPath(_pidDownloadPath);
-                currentFrame.Navigate(page);
-                break;
+                File.AppendAllText("error.log",
+                    $"[{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}] NavigateTo({pageKey}) failed:{System.Environment.NewLine}{ex}{System.Environment.NewLine}{System.Environment.NewLine}");
             }
-            case "Settings":
-                currentFrame.Navigate(GetOrCreateSettingsPage());
-                break;
-            case "Star":
-                currentFrame.Navigate(GetOrCreateStarPage());
-                break;
+            catch
+            {
+                // ignored
+            }
+
+            MessageBox.Show($"Open page failed: {ex.Message}{System.Environment.NewLine}{System.Environment.NewLine}Details saved to error.log");
         }
     }
 

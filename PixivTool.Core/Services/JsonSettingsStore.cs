@@ -25,7 +25,8 @@ public sealed class JsonSettingsStore : ISettingsStore
         }
 
         await using var stream = File.OpenRead(_settingsFilePath);
-        var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, SerializerOptions, ct);
+        var settings = await JsonSerializer.DeserializeAsync<AppSettings>(stream, SerializerOptions, ct)
+            .ConfigureAwait(false);
         return settings ?? new AppSettings();
     }
 
@@ -38,6 +39,7 @@ public sealed class JsonSettingsStore : ISettingsStore
         }
 
         await using var stream = File.Create(_settingsFilePath);
-        await JsonSerializer.SerializeAsync(stream, settings, SerializerOptions, ct);
+        await JsonSerializer.SerializeAsync(stream, settings, SerializerOptions, ct)
+            .ConfigureAwait(false);
     }
 }

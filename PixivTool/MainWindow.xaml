@@ -6,76 +6,78 @@
         mc:Ignorable="d"
         Title="PixivTool"
         Icon="{StaticResource Icon}"
-        MinHeight="600"
-        MinWidth="800"
-        Height="600"
-        Width="800"
+        MinHeight="640"
+        MinWidth="920"
+        Height="680"
+        Width="980"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Background="#00509C"
-                    Grid.Column="0"
-                    Orientation="Vertical"
-                    HorizontalAlignment="Left">
-            <Menu Height="400"
-                  Background="Transparent"
-                  Margin="0, 60, 0, 0">
-                <Menu.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel Orientation="Vertical"/>
-                    </ItemsPanelTemplate>
-                </Menu.ItemsPanel>
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
+            <DockPanel LastChildFill="True" Margin="10,16,10,16">
+                <StackPanel DockPanel.Dock="Top" Margin="6,6,6,20">
+                    <TextBlock Text="PixivTool"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White" />
+                    <TextBlock Text="Download assistant"
+                               Margin="0,6,0,0"
+                               Foreground="#BFD8F2"
+                               FontSize="12" />
+                </StackPanel>
 
-                <MenuItem Name="Rank" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenRankCommand}">
-                    <MenuItem.Header>
-                        <Grid>
-                            <TextBlock Foreground="White" Text="RANK" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Grid>
-                    </MenuItem.Header>
-                    <MenuItem.Icon>
-                        <Image Source="{StaticResource Rank}" />
-                    </MenuItem.Icon>
-                </MenuItem>
+                <Menu Background="Transparent" BorderThickness="0">
+                    <Menu.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </Menu.ItemsPanel>
 
-                <MenuItem Name="Pid" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenPidCommand}">
-                    <MenuItem.Header>
-                        <Grid>
-                            <TextBlock Foreground="White" Text="PID" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Grid>
-                    </MenuItem.Header>
-                    <MenuItem.Icon>
-                        <Image Source="{StaticResource Search}" Width="20" Height="20" />
-                    </MenuItem.Icon>
-                </MenuItem>
+                    <MenuItem Name="Rank" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenRankCommand}">
+                        <MenuItem.Header>
+                            <TextBlock Text="Rank" Foreground="White" FontWeight="SemiBold"/>
+                        </MenuItem.Header>
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource Rank}" Width="18" Height="18" />
+                        </MenuItem.Icon>
+                    </MenuItem>
 
-                <MenuItem Name="Star" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenStarCommand}">
-                    <MenuItem.Header>
-                        <Grid>
-                            <TextBlock Foreground="White" Text="Star" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Grid>
-                    </MenuItem.Header>
-                    <MenuItem.Icon>
-                        <Image Source="{StaticResource Star}" />
-                    </MenuItem.Icon>
-                </MenuItem>
+                    <MenuItem Name="Pid" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenPidCommand}">
+                        <MenuItem.Header>
+                            <TextBlock Text="PID" Foreground="White" FontWeight="SemiBold"/>
+                        </MenuItem.Header>
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource Search}" Width="18" Height="18" />
+                        </MenuItem.Icon>
+                    </MenuItem>
 
-                <MenuItem Name="Settings" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenSettingsCommand}">
-                    <MenuItem.Header>
-                        <Grid>
-                            <TextBlock Foreground="White" Text="Settings" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </Grid>
-                    </MenuItem.Header>
-                    <MenuItem.Icon>
-                        <Image Source="{StaticResource Settings}" />
-                    </MenuItem.Icon>
-                </MenuItem>
-            </Menu>
-        </StackPanel>
+                    <MenuItem Name="Star" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenStarCommand}">
+                        <MenuItem.Header>
+                            <TextBlock Text="Star" Foreground="White" FontWeight="SemiBold"/>
+                        </MenuItem.Header>
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource Star}" Width="18" Height="18" />
+                        </MenuItem.Icon>
+                    </MenuItem>
 
-        <Frame Grid.Column="1" Name="currentFrame" NavigationUIVisibility="Hidden" />
+                    <MenuItem Name="Settings" Style="{StaticResource MenuItemStyle}" Command="{Binding OpenSettingsCommand}">
+                        <MenuItem.Header>
+                            <TextBlock Text="Settings" Foreground="White" FontWeight="SemiBold"/>
+                        </MenuItem.Header>
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource Settings}" Width="18" Height="18" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </Menu>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Column="1" Padding="18" Background="{StaticResource AppBackgroundBrush}">
+            <Frame Grid.Column="1" Name="currentFrame" NavigationUIVisibility="Hidden" />
+        </Border>
     </Grid>
 </Window>

@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PixivTool.Core.Abstractions;
@@ -9,6 +8,10 @@ namespace PixivTool.Core.Services;
 
 public sealed class PixivApiClient : IPixivApiClient
 {
+    private const string BrowserUserAgent =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+        "(KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36";
+
     private readonly HttpClient _httpClient;
     private readonly Func<string> _cookieProvider;
 
@@ -20,31 +23,7 @@ public sealed class PixivApiClient : IPixivApiClient
 
     public async Task<IllustInfo> GetIllustByPidAsync(string pid, CancellationToken ct = default)
     {
-        ValidateCookie();
-
-        using var request = CreateRequest(HttpMethod.Get, $"https://www.pixiv.net/ajax/illust/{pid}");
-        using var response = await _httpClient.SendAsync(request, ct);
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new PixivApiException($"Fetch illust failed: {(int)response.StatusCode} {response.ReasonPhrase}");
-        }
-
-        await using var stream = await response.Content.ReadAsStreamAsync(ct);
-        var payload = await JsonSerializer.DeserializeAsync<IllustDetailResponse>(stream, cancellationToken: ct);
-        if (payload is null)
-        {
-            throw new PixivApiException("Pixiv response is empty.");
-        }
-
-        if (payload.Error)
-        {
-            throw new PixivApiException($"Pixiv rejected pid {pid}: {payload.Message ?? "unknown error"}");
-        }
-
-        if (payload.Body?.Urls?.Original is null)
-        {
-            throw new PixivApiException($"Pixiv response missing original URL for pid {pid}.");
-        }
+        var payload = await GetIllustDetailAsync(pid, ct);
 
         return new IllustInfo
         {
@@ -53,6 +32,56 @@ public sealed class PixivApiClient : IPixivApiClient
             ThumbUrl = payload.Body.Urls.Thumb ?? string.Empty,
             Title = payload.Body.Title ?? string.Empty
         };
+    }
+
+    public async Task<IReadOnlyList<string>> GetIllustPageUrlsAsync(string pid, CancellationToken ct = default)
+    {
+        ValidateCookie();
+
+        try
+        {
+            using var request = CreateRequest(HttpMethod.Get, $"https://www.pixiv.net/ajax/illust/{pid}/pages");
+            using var response = await _httpClient.SendAsync(request, ct);
+            if (response.IsSuccessStatusCode)
+            {
+                await using var stream = await response.Content.ReadAsStreamAsync(ct);
+                var payload = await JsonSerializer.DeserializeAsync<IllustPagesResponse>(stream, cancellationToken: ct);
+                if (payload is not null && !payload.Error)
+                {
+                    var urls = payload.Body?
+                        .Where(item => !string.IsNullOrWhiteSpace(item.Urls?.Original))
+                        .Select(item => item.Urls!.Original!)
+                        .ToList() ?? new List<string>();
+
+                    if (urls.Count > 0)
+                    {
+                        return urls;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Fallback to illust detail below.
+        }
+
+        var detail = await GetIllustDetailAsync(pid, ct);
+        var originalUrl = detail.Body.Urls.Original;
+        var pageCount = detail.Body.PageCount <= 0 ? 1 : detail.Body.PageCount;
+
+        if (pageCount <= 1 || string.IsNullOrWhiteSpace(originalUrl))
+        {
+            return new List<string> { originalUrl };
+        }
+
+        // Fallback pattern for multi-page illusts when /pages endpoint is blocked or empty.
+        var urlsByPattern = new List<string>();
+        for (var i = 0; i < pageCount; i++)
+        {
+            urlsByPattern.Add(originalUrl.Replace("_p0", $"_p{i}", StringComparison.Ordinal));
+        }
+
+        return urlsByPattern;
     }
 
     public async Task<IReadOnlyList<RankingItem>> GetRankingAsync(RankingQuery query, CancellationToken ct = default)
@@ -68,7 +97,14 @@ public sealed class PixivApiClient : IPixivApiClient
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new PixivApiException($"Fetch ranking page {page} failed: {(int)response.StatusCode} {response.ReasonPhrase}");
+                if (page == query.StartPage)
+                {
+                    throw new PixivApiException(
+                        $"Fetch ranking page {page} failed: {(int)response.StatusCode} {response.ReasonPhrase}");
+                }
+
+                // If later pages fail, keep already fetched data instead of failing the whole batch.
+                break;
             }
 
             await using var stream = await response.Content.ReadAsStreamAsync(ct);
@@ -85,10 +121,15 @@ public sealed class PixivApiClient : IPixivApiClient
                 Title = item.Title ?? string.Empty
             }));
 
-            if (string.Equals(payload.Next, "false", StringComparison.OrdinalIgnoreCase))
+            if (IsNextFalse(payload.Next))
             {
                 break;
             }
+        }
+
+        if (list.Count == 0)
+        {
+            throw new PixivApiException("Ranking list is empty. Cookie may be expired or blocked.");
         }
 
         return list;
@@ -138,10 +179,45 @@ public sealed class PixivApiClient : IPixivApiClient
     private HttpRequestMessage CreateRequest(HttpMethod method, string url)
     {
         var request = new HttpRequestMessage(method, url);
-        request.Headers.UserAgent.Add(new ProductInfoHeaderValue("PixivTool", "1.0"));
+        request.Headers.TryAddWithoutValidation("User-Agent", BrowserUserAgent);
         request.Headers.Referrer = new Uri("https://www.pixiv.net/");
+        request.Headers.TryAddWithoutValidation("Accept",
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+        request.Headers.TryAddWithoutValidation("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+        request.Headers.TryAddWithoutValidation("Origin", "https://www.pixiv.net");
         request.Headers.TryAddWithoutValidation("Cookie", _cookieProvider());
         return request;
+    }
+
+    private async Task<IllustDetailResponse> GetIllustDetailAsync(string pid, CancellationToken ct)
+    {
+        ValidateCookie();
+
+        using var request = CreateRequest(HttpMethod.Get, $"https://www.pixiv.net/ajax/illust/{pid}");
+        using var response = await _httpClient.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new PixivApiException($"Fetch illust failed: {(int)response.StatusCode} {response.ReasonPhrase}");
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(ct);
+        var payload = await JsonSerializer.DeserializeAsync<IllustDetailResponse>(stream, cancellationToken: ct);
+        if (payload is null)
+        {
+            throw new PixivApiException("Pixiv response is empty.");
+        }
+
+        if (payload.Error)
+        {
+            throw new PixivApiException($"Pixiv rejected pid {pid}: {payload.Message ?? "unknown error"}");
+        }
+
+        if (payload.Body?.Urls?.Original is null)
+        {
+            throw new PixivApiException($"Pixiv response missing original URL for pid {pid}.");
+        }
+
+        return payload;
     }
 
     private void ValidateCookie()
@@ -174,6 +250,9 @@ public sealed class PixivApiClient : IPixivApiClient
 
         [JsonPropertyName("urls")]
         public IllustUrls? Urls { get; set; }
+
+        [JsonPropertyName("pageCount")]
+        public int PageCount { get; set; }
     }
 
     private sealed class IllustUrls
@@ -191,7 +270,7 @@ public sealed class PixivApiClient : IPixivApiClient
         public List<RankingContentItem>? Contents { get; set; }
 
         [JsonPropertyName("next")]
-        public string? Next { get; set; }
+        public JsonElement? Next { get; set; }
     }
 
     private sealed class RankingContentItem
@@ -204,5 +283,41 @@ public sealed class PixivApiClient : IPixivApiClient
 
         [JsonPropertyName("rank")]
         public int Rank { get; set; }
+    }
+
+    private sealed class IllustPagesResponse
+    {
+        [JsonPropertyName("error")]
+        public bool Error { get; set; }
+
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+
+        [JsonPropertyName("body")]
+        public List<IllustPageBody>? Body { get; set; }
+    }
+
+    private sealed class IllustPageBody
+    {
+        [JsonPropertyName("urls")]
+        public IllustUrls? Urls { get; set; }
+    }
+
+    private static bool IsNextFalse(JsonElement? next)
+    {
+        if (next is null)
+        {
+            return true;
+        }
+
+        var value = next.Value;
+        return value.ValueKind switch
+        {
+            JsonValueKind.False => true,
+            JsonValueKind.True => false,
+            JsonValueKind.String => string.Equals(value.GetString(), "false", StringComparison.OrdinalIgnoreCase),
+            JsonValueKind.Null => true,
+            _ => false
+        };
     }
 }

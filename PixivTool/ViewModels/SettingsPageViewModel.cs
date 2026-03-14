@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
+using Forms = System.Windows.Forms;
 using PixivTool.CoreBridge;
 using PixivTool.Mvvm;
 
@@ -20,8 +20,8 @@ public sealed class SettingsPageViewModel : ViewModelBase
         _pidDownloadPath = CoreRuntime.Settings.PidDownloadPath;
         _cookieRawMessage = CoreRuntime.Settings.Cookie;
 
-        ApplyRankPathCommand = new RelayCommand(() => RankPathApplied?.Invoke(RankDownloadPath));
-        ApplyPidPathCommand = new RelayCommand(() => PidPathApplied?.Invoke(PidDownloadPath));
+        ApplyRankPathCommand = new RelayCommand(BrowseRankPath);
+        ApplyPidPathCommand = new RelayCommand(BrowsePidPath);
         SaveCommand = new AsyncRelayCommand(SaveAsync);
     }
 
@@ -50,6 +50,45 @@ public sealed class SettingsPageViewModel : ViewModelBase
     public ICommand ApplyPidPathCommand { get; }
     public ICommand SaveCommand { get; }
 
+    private void BrowseRankPath()
+    {
+        var selectedPath = SelectFolderPath("Select rank download folder", RankDownloadPath);
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            return;
+        }
+
+        RankDownloadPath = selectedPath;
+        RankPathApplied?.Invoke(RankDownloadPath);
+    }
+
+    private void BrowsePidPath()
+    {
+        var selectedPath = SelectFolderPath("Select PID download folder", PidDownloadPath);
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            return;
+        }
+
+        PidDownloadPath = selectedPath;
+        PidPathApplied?.Invoke(PidDownloadPath);
+    }
+
+    private static string? SelectFolderPath(string title, string defaultPath)
+    {
+        using var dialog = new Forms.FolderBrowserDialog
+        {
+            Description = title,
+            UseDescriptionForTitle = true,
+            InitialDirectory = string.IsNullOrWhiteSpace(defaultPath)
+                ? Environment.CurrentDirectory
+                : defaultPath
+        };
+
+        var result = dialog.ShowDialog();
+        return result == Forms.DialogResult.OK ? dialog.SelectedPath : null;
+    }
+
     private async Task SaveAsync()
     {
         try
@@ -62,11 +101,11 @@ public sealed class SettingsPageViewModel : ViewModelBase
             PidPathApplied?.Invoke(PidDownloadPath);
 
             await CoreRuntime.SaveSettingsAsync();
-            MessageBox.Show("Settings Saved");
+            System.Windows.MessageBox.Show("Settings Saved");
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Failed:{ex.Message}");
+            System.Windows.MessageBox.Show($"Failed:{ex.Message}");
         }
     }
 }

@@ -18,3 +18,4 @@ obj/
 *.spec
 build/
 dist/
+doc/

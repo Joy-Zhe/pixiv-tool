@@ -8,7 +8,7 @@ var settings = await settingsStore.LoadAsync();
 using var apiHttpClient = new HttpClient();
 using var downloadHttpClient = new HttpClient();
 IPixivApiClient apiClient = new PixivApiClient(apiHttpClient, () => settings.Cookie);
-IDownloadService downloadService = new DownloadService(apiClient, downloadHttpClient);
+IDownloadService downloadService = new DownloadService(apiClient, downloadHttpClient, () => settings.Cookie);
 
 if (args.Length == 0)
 {

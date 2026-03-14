@@ -21,7 +21,8 @@ public static class CoreRuntime
 
     public static ISettingsStore SettingsStore => SettingsStoreImpl;
     public static IPixivApiClient ApiClient { get; } = new PixivApiClient(ApiHttpClient, () => Settings.Cookie);
-    public static IDownloadService DownloadService { get; } = new DownloadService(ApiClient, DownloadHttpClient);
+    public static IDownloadService DownloadService { get; } =
+        new DownloadService(ApiClient, DownloadHttpClient, () => Settings.Cookie);
 
     public static void EnsureInitialized()
     {

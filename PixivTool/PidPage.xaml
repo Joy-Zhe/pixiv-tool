@@ -9,46 +9,69 @@
       MinWidth="720"
       Height="600"
       Width="720">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60" />
-            <ColumnDefinition Width="50" />
-            <ColumnDefinition Width="120" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="80" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
+    <Grid Margin="8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="120" />
-            <RowDefinition Height="40" />
-            <RowDefinition Height="5" />
-            <RowDefinition Height="40" />
-            <RowDefinition Height="250" />
-            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Label VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="1" Content="PID" />
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <TextBox VerticalContentAlignment="Center"
-                 Grid.Column="2"
-                 Grid.Row="1"
-                 Text="{Binding Pid, UpdateSourceTrigger=PropertyChanged}" />
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Download by PID" Style="{StaticResource TitleTextStyle}" />
 
-        <Button Grid.Column="4" Grid.Row="1" Content="Download" Command="{Binding DownloadCommand}" />
-        <Button Grid.Column="4" Grid.Row="3" Content="Preview" Command="{Binding PreviewCommand}" />
+                    <TextBlock Text="PID" FontWeight="SemiBold" />
+                    <TextBox Text="{Binding Pid, UpdateSourceTrigger=PropertyChanged}" />
 
-        <Label Grid.Column="5"
-               Grid.Row="5"
-               Content="Preview"
-               VerticalContentAlignment="Center"
-               HorizontalAlignment="Center"
-               FontSize="20"/>
-        <Image Grid.Column="5"
-               Grid.Row="4"
-               Width="250"
-               Height="250"
-               Source="{Binding PreviewImage}" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Preview" Command="{Binding PreviewCommand}" Margin="0,4,6,0" />
+                        <Button Grid.Column="1" Content="Download" Command="{Binding DownloadCommand}" Margin="6,4,0,0" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{Binding PauseResumeText}"
+                                Command="{Binding PauseResumeCommand}"
+                                MinWidth="100"
+                                Margin="0,0,8,0" />
+                        <Button Content="Cancel"
+                                Command="{Binding CancelCommand}"
+                                MinWidth="100" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Preview" Style="{StaticResource TitleTextStyle}" />
+                    <Border BorderBrush="#D6E0EA" BorderThickness="1" CornerRadius="8" Padding="8" Background="#F9FBFD">
+                        <Image Width="320" Height="320" Stretch="Uniform" Source="{Binding PreviewImage}" />
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,12,0,0">
+            <StackPanel>
+                <TextBlock Text="Download Progress" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <ProgressBar Minimum="0"
+                             Maximum="{Binding ProgressMaximum, Mode=OneWay}"
+                             Value="{Binding ProgressValue, Mode=OneWay}"
+                             Height="16" />
+                <TextBlock Text="{Binding ProgressText}"
+                           Margin="0,8,0,0"
+                           Foreground="#4A6280"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>
