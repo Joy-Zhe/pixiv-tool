@@ -1,6 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixivTool", "PixivTool\PixivTool.csproj", "{B3F80A78-034D-4E28-9614-88A5F2EA775F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixivTool.Core", "PixivTool.Core\PixivTool.Core.csproj", "{E6076E87-5FDD-40A6-B7E2-45E0E260249D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixivTool.CLI", "PixivTool.CLI\PixivTool.CLI.csproj", "{91FA6DAB-604D-4707-B708-D4CB1D69C99E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixivTool.Avalonia", "PixivTool.Avalonia\PixivTool.Avalonia.csproj", "{82FCE6E3-04B8-4C24-996A-E44C1E4EFA26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixivTool.Tests", "PixivTool.Tests\PixivTool.Tests.csproj", "{67796410-ECA6-4D4F-BE56-EEB10CF45ABD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +21,21 @@ Global
 		{B3F80A78-034D-4E28-9614-88A5F2EA775F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3F80A78-034D-4E28-9614-88A5F2EA775F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3F80A78-034D-4E28-9614-88A5F2EA775F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6076E87-5FDD-40A6-B7E2-45E0E260249D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6076E87-5FDD-40A6-B7E2-45E0E260249D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6076E87-5FDD-40A6-B7E2-45E0E260249D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6076E87-5FDD-40A6-B7E2-45E0E260249D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91FA6DAB-604D-4707-B708-D4CB1D69C99E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91FA6DAB-604D-4707-B708-D4CB1D69C99E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91FA6DAB-604D-4707-B708-D4CB1D69C99E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91FA6DAB-604D-4707-B708-D4CB1D69C99E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82FCE6E3-04B8-4C24-996A-E44C1E4EFA26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82FCE6E3-04B8-4C24-996A-E44C1E4EFA26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82FCE6E3-04B8-4C24-996A-E44C1E4EFA26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82FCE6E3-04B8-4C24-996A-E44C1E4EFA26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67796410-ECA6-4D4F-BE56-EEB10CF45ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67796410-ECA6-4D4F-BE56-EEB10CF45ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67796410-ECA6-4D4F-BE56-EEB10CF45ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67796410-ECA6-4D4F-BE56-EEB10CF45ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
