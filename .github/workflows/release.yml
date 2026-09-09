@@ -1,72 +1,101 @@
-﻿name: Release
+name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  windows:
     runs-on: windows-latest
-
+    env:
+      WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
-          dotnet-version: "8.0.x"
-
-      - name: Restore
-        run: dotnet restore pixivTool.sln
-
-      - name: Build
-        run: dotnet build pixivTool.sln -c Release --no-restore
-
-      - name: Publish WPF App (win-x64)
-        run: |
-          dotnet publish PixivTool/PixivTool.csproj `
-            -c Release `
-            -r win-x64 `
-            --self-contained true `
-            /p:PublishSingleFile=true `
-            /p:IncludeNativeLibrariesForSelfExtract=true `
-            /p:PublishTrimmed=false `
-            -o out/pixivtool-win-x64
-
-      - name: Publish CLI (win-x64)
-        run: |
-          dotnet publish PixivTool.CLI/PixivTool.CLI.csproj `
-            -c Release `
-            -r win-x64 `
-            --self-contained true `
-            /p:PublishSingleFile=true `
-            /p:IncludeNativeLibrariesForSelfExtract=true `
-            /p:PublishTrimmed=false `
-            -o out/pixivtool-cli-win-x64
-
-      - name: Pack Release Artifacts
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: flutter test --no-pub
+      - run: flutter build windows --release --no-pub
+      - name: Package portable ZIP
+        shell: pwsh
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath PixivTool-windows-x64.zip
+      - name: Package MSIX
         shell: pwsh
         run: |
-          Compress-Archive `
-            -Path out/pixivtool-win-x64/* `
-            -DestinationPath out/pixivtool-win-x64.zip `
-            -Force
-          Compress-Archive `
-            -Path out/pixivtool-cli-win-x64/* `
-            -DestinationPath out/pixivtool-cli-win-x64.zip `
-            -Force
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_BASE64) -or [string]::IsNullOrWhiteSpace($env:WINDOWS_CERTIFICATE_PASSWORD)) {
+            Write-Host '::notice::Windows signing credentials are not configured; creating an unsigned test MSIX.'
+            dart run msix:create --build-windows false --sign-msix false
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            Rename-Item -LiteralPath 'build/windows/x64/runner/Release/PixivTool-windows-x64.msix' -NewName 'PixivTool-windows-x64-unsigned.msix'
+          } else {
+            [IO.File]::WriteAllBytes('windows-release.pfx', [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64))
+            try {
+              dart run msix:create --build-windows false --sign-msix true --certificate-path windows-release.pfx --certificate-password $env:WINDOWS_CERTIFICATE_PASSWORD
+              if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            } finally {
+              Remove-Item -LiteralPath 'windows-release.pfx' -Force -ErrorAction SilentlyContinue
+            }
+          }
+      - uses: softprops/action-gh-release@v2
         with:
           files: |
-            out/pixivtool-win-x64.zip
-            out/pixivtool-cli-win-x64.zip
+            PixivTool-windows-x64.zip
+            build/windows/x64/runner/Release/*.msix
           generate_release_notes: true
-          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          prerelease: ${{ contains(github.ref_name, '-test') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+
+  macos-arm64:
+    runs-on: macos-14-xlarge
+    env:
+      APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.2
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - run: flutter test --no-pub
+      - run: flutter build macos --release --no-pub
+      - name: Verify arm64 application
+        run: file build/macos/Build/Products/Release/PixivTool.app/Contents/MacOS/PixivTool | grep arm64
+      - name: Sign and notarize when credentials are configured
+        run: |
+          if [[ -z "$APPLE_CERTIFICATE_BASE64" || -z "$APPLE_CERTIFICATE_PASSWORD" || -z "$APPLE_SIGNING_IDENTITY" || -z "$APPLE_ID" || -z "$APPLE_APP_PASSWORD" || -z "$APPLE_TEAM_ID" ]]; then
+            echo '::notice::Apple signing credentials are not configured; creating an unsigned and unnotarized test DMG.'
+            echo 'MACOS_DMG_NAME=PixivTool-macos-arm64-unsigned.dmg' >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "$APPLE_CERTIFICATE_BASE64" | base64 -D > certificate.p12
+          security create-keychain -p temporary build.keychain
+          security unlock-keychain -p temporary build.keychain
+          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k temporary build.keychain
+          codesign --deep --force --options runtime --timestamp --keychain build.keychain --sign "$APPLE_SIGNING_IDENTITY" build/macos/Build/Products/Release/PixivTool.app
+          ditto -c -k --keepParent build/macos/Build/Products/Release/PixivTool.app notarize.zip
+          xcrun notarytool submit notarize.zip --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+          xcrun stapler staple build/macos/Build/Products/Release/PixivTool.app
+          echo 'MACOS_DMG_NAME=PixivTool-macos-arm64.dmg' >> "$GITHUB_ENV"
+      - name: Create DMG
+        run: hdiutil create -volname PixivTool -srcfolder build/macos/Build/Products/Release/PixivTool.app -ov -format UDZO "$MACOS_DMG_NAME"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: PixivTool-macos-arm64*.dmg
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-test') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
