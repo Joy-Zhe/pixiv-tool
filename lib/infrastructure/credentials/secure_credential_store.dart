@@ -4,7 +4,11 @@ import '../../domain/contracts.dart';
 
 class SecureCredentialStore implements CredentialStore {
   SecureCredentialStore({FlutterSecureStorage? storage})
-    : _storage = storage ?? const FlutterSecureStorage();
+    : _storage =
+          storage ??
+          const FlutterSecureStorage(
+            mOptions: MacOsOptions(useDataProtectionKeyChain: false),
+          );
 
   static const _cookieKey = 'pixiv.session.cookie';
   static const _proxyPasswordKey = 'network.proxy.password';

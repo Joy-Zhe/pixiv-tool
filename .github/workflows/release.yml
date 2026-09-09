@@ -79,6 +79,12 @@ jobs:
         run: |
           if [[ -z "$APPLE_CERTIFICATE_BASE64" || -z "$APPLE_CERTIFICATE_PASSWORD" || -z "$APPLE_SIGNING_IDENTITY" || -z "$APPLE_ID" || -z "$APPLE_APP_PASSWORD" || -z "$APPLE_TEAM_ID" ]]; then
             echo '::notice::Apple signing credentials are not configured; creating an unsigned and unnotarized test DMG.'
+            # Flutter/Xcode may inject get-task-allow when applying an ad-hoc
+            # signature. Recent macOS versions reject that restricted
+            # entitlement unless the app has a real certificate chain.
+            codesign --deep --force --sign - \
+              --entitlements macos/Runner/Release.entitlements \
+              build/macos/Build/Products/Release/PixivTool.app
             echo 'MACOS_DMG_NAME=PixivTool-macos-arm64-unsigned.dmg' >> "$GITHUB_ENV"
             exit 0
           fi
@@ -87,7 +93,10 @@ jobs:
           security unlock-keychain -p temporary build.keychain
           security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k temporary build.keychain
-          codesign --deep --force --options runtime --timestamp --keychain build.keychain --sign "$APPLE_SIGNING_IDENTITY" build/macos/Build/Products/Release/PixivTool.app
+          codesign --deep --force --options runtime --timestamp --keychain build.keychain \
+            --entitlements macos/Runner/Release.entitlements \
+            --sign "$APPLE_SIGNING_IDENTITY" \
+            build/macos/Build/Products/Release/PixivTool.app
           ditto -c -k --keepParent build/macos/Build/Products/Release/PixivTool.app notarize.zip
           xcrun notarytool submit notarize.zip --apple-id "$APPLE_ID" --password "$APPLE_APP_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
           xcrun stapler staple build/macos/Build/Products/Release/PixivTool.app

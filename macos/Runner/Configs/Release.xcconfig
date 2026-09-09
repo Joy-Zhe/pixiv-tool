@@ -1,2 +1,6 @@
 #include "../../Flutter/Flutter-Release.xcconfig"
 #include "Warnings.xcconfig"
+
+// Ad-hoc release builds must not receive Xcode's debug-only get-task-allow
+// entitlement. macOS rejects ad-hoc signed apps with restricted entitlements.
+CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO
