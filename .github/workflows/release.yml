@@ -54,7 +54,7 @@ jobs:
           prerelease: ${{ contains(github.ref_name, '-test') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
 
   macos-arm64:
-    runs-on: macos-14-xlarge
+    runs-on: macos-15
     env:
       APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
       APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
