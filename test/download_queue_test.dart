@@ -73,6 +73,66 @@ void main() {
     expect(await File('${file.path}.part').exists(), isFalse);
   });
 
+  test('search downloads use the PID root layout', () async {
+    final bytes = Uint8List.fromList(
+      List.generate(1024, (index) => index % 251),
+    );
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    addTearDown(() => server.close(force: true));
+    server.listen((request) async {
+      request.response
+        ..statusCode = HttpStatus.ok
+        ..contentLength = bytes.length
+        ..add(bytes);
+      await request.response.close();
+    });
+    final temp = await Directory.systemTemp.createTemp('pixiv-tool-search-');
+    addTearDown(() => temp.delete(recursive: true));
+    final database = AppDatabase(executor: NativeDatabase.memory());
+    addTearDown(database.close);
+    final http = PixivHttpClient(
+      proxy: const ProxyConfig(mode: ProxyMode.direct),
+      cookie: 'PHPSESSID=test',
+    );
+    final queue = PersistentDownloadQueue(
+      database: database,
+      api: _DownloadApi(
+        'http://${server.address.host}:${server.port}/123_p0.jpg',
+      ),
+      http: http,
+    );
+    addTearDown(queue.dispose);
+
+    final ids = await queue.enqueue(
+      DownloadRequest(
+        source: DownloadSource.search,
+        rootPath: temp.path,
+        candidates: const [
+          DownloadCandidate(
+            pid: '123',
+            title: 'search result',
+            authorId: '7',
+            authorName: 'artist',
+            type: IllustType.illust,
+          ),
+        ],
+      ),
+    );
+    await queue
+        .watch()
+        .firstWhere(
+          (value) => value.jobs.any(
+            (job) =>
+                job.id == ids.single && job.status == DownloadStatus.completed,
+          ),
+        )
+        .timeout(const Duration(seconds: 10));
+    expect(
+      await File(p.join(temp.path, '123', '123_p0.jpg')).readAsBytes(),
+      bytes,
+    );
+  });
+
   test('ugoira is recorded as skipped without an HTTP request', () async {
     final database = AppDatabase(executor: NativeDatabase.memory());
     addTearDown(database.close);
@@ -225,5 +285,8 @@ class _DownloadApi implements PixivApi {
   Future<AccountProfile> getCurrentAccount() => throw UnimplementedError();
   @override
   Future<PageResult<RankingItem>> getRanking(RankingQuery query) =>
+      throw UnimplementedError();
+  @override
+  Future<PageResult<SearchItem>> search(SearchQuery query) =>
       throw UnimplementedError();
 }

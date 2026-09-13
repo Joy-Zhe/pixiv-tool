@@ -2,7 +2,7 @@ enum BookmarkVisibility { public, private }
 
 enum IllustType { illust, manga, ugoira }
 
-enum DownloadSource { pid, ranking, bookmarkSelection, bookmarkBatch }
+enum DownloadSource { pid, ranking, bookmarkSelection, bookmarkBatch, search }
 
 enum DownloadStatus {
   pending,
@@ -32,6 +32,8 @@ enum DownloadErrorCode {
 enum RankingMode { daily, weekly, monthly }
 
 enum RankingContent { all, illust, manga }
+
+enum SearchMode { tagPartial, tagExact, titleOrDescription }
 
 class AccountProfile {
   const AccountProfile({
@@ -68,6 +70,8 @@ class IllustDetail {
     required this.pageCount,
     required this.type,
     required this.thumbnailUrl,
+    this.likeCount,
+    this.bookmarkCount,
   });
 
   final String pid;
@@ -77,6 +81,8 @@ class IllustDetail {
   final int pageCount;
   final IllustType type;
   final String thumbnailUrl;
+  final int? likeCount;
+  final int? bookmarkCount;
 }
 
 class PageResult<T> {
@@ -188,6 +194,99 @@ class BookmarkSyncResult {
 
   final int received;
   final int removed;
+}
+
+class SearchQuery {
+  const SearchQuery({
+    required this.keyword,
+    this.mode = SearchMode.tagPartial,
+    this.page = 1,
+  });
+
+  final String keyword;
+  final SearchMode mode;
+  final int page;
+
+  SearchQuery copyWith({String? keyword, SearchMode? mode, int? page}) =>
+      SearchQuery(
+        keyword: keyword ?? this.keyword,
+        mode: mode ?? this.mode,
+        page: page ?? this.page,
+      );
+}
+
+class SearchFilter {
+  const SearchFilter({this.minLikeCount, this.minBookmarkCount});
+
+  final int? minLikeCount;
+  final int? minBookmarkCount;
+
+  bool get hasThreshold =>
+      (minLikeCount ?? 0) > 0 || (minBookmarkCount ?? 0) > 0;
+
+  bool matches(SearchItem item) {
+    if (minLikeCount != null &&
+        minLikeCount! > 0 &&
+        (item.likeCount == null || item.likeCount! < minLikeCount!)) {
+      return false;
+    }
+    if (minBookmarkCount != null &&
+        minBookmarkCount! > 0 &&
+        (item.bookmarkCount == null ||
+            item.bookmarkCount! < minBookmarkCount!)) {
+      return false;
+    }
+    return true;
+  }
+}
+
+class SearchItem {
+  const SearchItem({
+    required this.pid,
+    required this.title,
+    required this.authorId,
+    required this.authorName,
+    required this.pageCount,
+    required this.type,
+    required this.thumbnailUrl,
+    this.tags = const [],
+    this.likeCount,
+    this.bookmarkCount,
+  });
+
+  final String pid;
+  final String title;
+  final String authorId;
+  final String authorName;
+  final int pageCount;
+  final IllustType type;
+  final String thumbnailUrl;
+  final List<String> tags;
+  final int? likeCount;
+  final int? bookmarkCount;
+
+  SearchItem copyWith({
+    String? title,
+    String? authorId,
+    String? authorName,
+    int? pageCount,
+    IllustType? type,
+    String? thumbnailUrl,
+    List<String>? tags,
+    int? likeCount,
+    int? bookmarkCount,
+  }) => SearchItem(
+    pid: pid,
+    title: title ?? this.title,
+    authorId: authorId ?? this.authorId,
+    authorName: authorName ?? this.authorName,
+    pageCount: pageCount ?? this.pageCount,
+    type: type ?? this.type,
+    thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+    tags: tags ?? this.tags,
+    likeCount: likeCount ?? this.likeCount,
+    bookmarkCount: bookmarkCount ?? this.bookmarkCount,
+  );
 }
 
 class DownloadCandidate {

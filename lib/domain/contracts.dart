@@ -13,6 +13,7 @@ abstract interface class PixivApi {
   Future<PageResult<RankingItem>> getRanking(RankingQuery query);
   Future<AccountProfile> getCurrentAccount();
   Future<PageResult<BookmarkItem>> getBookmarks(BookmarkQuery query);
+  Future<PageResult<SearchItem>> search(SearchQuery query);
 }
 
 abstract interface class BookmarkRepository {

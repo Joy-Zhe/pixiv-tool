@@ -22,6 +22,83 @@ class AppLocalizationsZh extends AppLocalizations {
   String get bookmarks => '收藏夹';
 
   @override
+  String get search => '搜索';
+
+  @override
+  String get searchKeyword => '标签或关键字';
+
+  @override
+  String get searchKeywordHint => '输入标签、标题或说明';
+
+  @override
+  String get searchMode => '搜索范围';
+
+  @override
+  String get searchTagPartial => '标签（部分匹配）';
+
+  @override
+  String get searchTagExact => '标签（完全匹配）';
+
+  @override
+  String get searchTitleDescription => '标题和说明';
+
+  @override
+  String get minLikes => '最低点赞数';
+
+  @override
+  String get minBookmarks => '最低收藏数';
+
+  @override
+  String get searchAction => '搜索';
+
+  @override
+  String get stopSearch => '停止搜索';
+
+  @override
+  String get continueSearch => '继续查找';
+
+  @override
+  String searchProgress(Object pages, Object works) {
+    return '已检查 $pages 页，扫描 $works 个作品';
+  }
+
+  @override
+  String searchServerTotal(Object count) {
+    return '筛选前结果数：$count';
+  }
+
+  @override
+  String searchResultCount(Object count) {
+    return '找到 $count 个匹配作品';
+  }
+
+  @override
+  String searchDetailsFailed(Object count) {
+    return '$count 个作品热度查询失败，重试';
+  }
+
+  @override
+  String get noSearchResults => '暂无符合条件的作品';
+
+  @override
+  String get searchHint => '输入标签或关键字开始搜索';
+
+  @override
+  String get searchKeywordRequired => '请输入标签或关键字';
+
+  @override
+  String get sessionExpired => 'Pixiv 会话已过期，请重新登录';
+
+  @override
+  String get invalidPopularity => '请输入非负整数作为点赞数或收藏数';
+
+  @override
+  String get likeCountLabel => '点赞';
+
+  @override
+  String get bookmarkCountLabel => '收藏';
+
+  @override
   String get downloads => '下载任务';
 
   @override

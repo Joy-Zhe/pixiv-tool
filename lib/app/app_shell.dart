@@ -26,6 +26,12 @@ class AppShell extends StatelessWidget {
         label: l10n.ranking,
       ),
       (
+        path: '/search',
+        icon: Icons.search_outlined,
+        selected: Icons.search,
+        label: l10n.search,
+      ),
+      (
         path: '/bookmarks',
         icon: Icons.bookmarks_outlined,
         selected: Icons.bookmarks,

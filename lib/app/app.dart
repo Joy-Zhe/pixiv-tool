@@ -9,6 +9,7 @@ import '../features/bookmarks/bookmarks_page.dart';
 import '../features/downloads/downloads_page.dart';
 import '../features/pid/pid_page.dart';
 import '../features/ranking/ranking_page.dart';
+import '../features/search/search_page.dart';
 import '../features/settings/settings_page.dart';
 import '../l10n/app_localizations.dart';
 import 'app_shell.dart';
@@ -39,6 +40,7 @@ class _PixivToolAppState extends ConsumerState<PixivToolApp> {
           routes: [
             GoRoute(path: '/pid', builder: (_, _) => const PidPage()),
             GoRoute(path: '/ranking', builder: (_, _) => const RankingPage()),
+            GoRoute(path: '/search', builder: (_, _) => const SearchPage()),
             GoRoute(
               path: '/bookmarks',
               builder: (_, _) => const BookmarksPage(),

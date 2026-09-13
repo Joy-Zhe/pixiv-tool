@@ -68,6 +68,8 @@ class PixivApiClient implements PixivApi {
       thumbnailUrl: _text(
         urls['regular'] ?? urls['small'] ?? urls['thumb'] ?? urls['original'],
       ),
+      likeCount: _nullableInteger(body['likeCount']),
+      bookmarkCount: _nullableInteger(body['bookmarkCount']),
     );
   }
 
@@ -179,13 +181,102 @@ class PixivApiClient implements PixivApi {
     );
   }
 
+  @override
+  Future<PageResult<SearchItem>> search(SearchQuery query) async {
+    if (query.keyword.trim().isEmpty) {
+      throw const FormatException('Search keyword cannot be empty');
+    }
+    if (query.page < 1) {
+      throw const FormatException('Search page must be positive');
+    }
+    final uri =
+        Uri.parse(
+          '$_base/ajax/search/artworks/${Uri.encodeComponent(query.keyword.trim())}',
+        ).replace(
+          queryParameters: {
+            'word': query.keyword.trim(),
+            'order': 'date_d',
+            'mode': 'all',
+            'p': '${query.page}',
+            's_mode': switch (query.mode) {
+              SearchMode.tagPartial => 's_tag',
+              SearchMode.tagExact => 's_tag_full',
+              SearchMode.titleOrDescription => 's_tc',
+            },
+            'type': 'all',
+            'lang': 'en',
+          },
+        );
+    final json = await _http.getJson(uri);
+    final body = _map(json['body']);
+    final section = _map(
+      body['illustManga'] ?? body['illusts'] ?? body['works'],
+    );
+    final rawItems = section['data'] ?? section['works'] ?? body['data'];
+    if (rawItems is! List) {
+      throw const FormatException('Pixiv search response is invalid');
+    }
+    final items = <SearchItem>[];
+    for (final raw in rawItems) {
+      final item = _map(raw);
+      final pid = _text(item['id'] ?? item['illustId'] ?? item['illust_id']);
+      if (pid.isEmpty) continue;
+      final urls = _map(item['urls'] ?? item['imageUrls']);
+      items.add(
+        SearchItem(
+          pid: pid,
+          title: _text(item['title']),
+          authorId: _text(item['userId'] ?? item['user_id']),
+          authorName: _text(item['userName'] ?? item['user_name']),
+          pageCount: _integer(item['pageCount'], fallback: 1),
+          type: _type(item['illustType'] ?? item['illust_type']),
+          thumbnailUrl: _text(
+            item['url'] ??
+                urls['regular'] ??
+                urls['small'] ??
+                urls['thumb'] ??
+                urls['original'],
+          ),
+          tags: _tags(item['tags']),
+          likeCount: _nullableInteger(item['likeCount']),
+          bookmarkCount: _nullableInteger(item['bookmarkCount']),
+        ),
+      );
+    }
+    final total = _integer(section['total'] ?? body['total']);
+    final nextUrl = _text(
+      section['nextUrl'] ?? section['next_url'] ?? body['nextUrl'],
+    );
+    final explicitHasMore = section['hasNext'] ?? section['hasMore'];
+    final lastPage = _nullableInteger(
+      section['lastPage'] ?? section['last_page'] ?? body['lastPage'],
+    );
+    const pageSize = 60;
+    final hasMore = lastPage != null
+        ? query.page < lastPage
+        : explicitHasMore is bool
+        ? explicitHasMore
+        : nextUrl.isNotEmpty ||
+              (total > 0
+                  ? rawItems.isNotEmpty && query.page * pageSize < total
+                  : rawItems.length >= pageSize);
+    return PageResult(items: items, total: total, hasMore: hasMore);
+  }
+
   static Map<String, dynamic> _map(Object? value) =>
-      value is Map<String, dynamic> ? value : <String, dynamic>{};
+      value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
 
   static String _text(Object? value) => value?.toString() ?? '';
 
   static int _integer(Object? value, {int fallback = 0}) =>
       value is num ? value.toInt() : int.tryParse(_text(value)) ?? fallback;
+
+  static int? _nullableInteger(Object? value) {
+    if (value == null) return null;
+    if (value is num) return value.toInt();
+    final parsed = int.tryParse(_text(value));
+    return parsed;
+  }
 
   static IllustType _type(Object? value) {
     final raw = _text(value).toLowerCase();

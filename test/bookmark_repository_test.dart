@@ -120,4 +120,7 @@ class _BookmarkApi implements PixivApi {
   @override
   Future<PageResult<RankingItem>> getRanking(RankingQuery query) =>
       throw UnimplementedError();
+  @override
+  Future<PageResult<SearchItem>> search(SearchQuery query) =>
+      throw UnimplementedError();
 }

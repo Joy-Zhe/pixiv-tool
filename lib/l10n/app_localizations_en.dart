@@ -22,6 +22,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookmarks => 'Bookmarks';
 
   @override
+  String get search => 'Search';
+
+  @override
+  String get searchKeyword => 'Tag or keyword';
+
+  @override
+  String get searchKeywordHint => 'Enter a tag, title, or description';
+
+  @override
+  String get searchMode => 'Search scope';
+
+  @override
+  String get searchTagPartial => 'Tag (partial match)';
+
+  @override
+  String get searchTagExact => 'Tag (exact match)';
+
+  @override
+  String get searchTitleDescription => 'Title and description';
+
+  @override
+  String get minLikes => 'Minimum likes';
+
+  @override
+  String get minBookmarks => 'Minimum bookmarks';
+
+  @override
+  String get searchAction => 'Search';
+
+  @override
+  String get stopSearch => 'Stop search';
+
+  @override
+  String get continueSearch => 'Continue searching';
+
+  @override
+  String searchProgress(Object pages, Object works) {
+    return 'Checked $pages page(s), scanned $works works';
+  }
+
+  @override
+  String searchServerTotal(Object count) {
+    return 'Results before filtering: $count';
+  }
+
+  @override
+  String searchResultCount(Object count) {
+    return '$count matching work(s)';
+  }
+
+  @override
+  String searchDetailsFailed(Object count) {
+    return 'Popularity lookup failed for $count work(s); retry';
+  }
+
+  @override
+  String get noSearchResults => 'No matching works';
+
+  @override
+  String get searchHint => 'Enter a tag or keyword to search';
+
+  @override
+  String get searchKeywordRequired => 'Enter a tag or keyword';
+
+  @override
+  String get sessionExpired => 'The Pixiv session has expired. Sign in again.';
+
+  @override
+  String get invalidPopularity =>
+      'Enter non-negative integers for likes or bookmarks';
+
+  @override
+  String get likeCountLabel => 'Likes';
+
+  @override
+  String get bookmarkCountLabel => 'Bookmarks';
+
+  @override
   String get downloads => 'Downloads';
 
   @override

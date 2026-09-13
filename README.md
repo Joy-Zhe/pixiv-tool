@@ -1,6 +1,6 @@
 # PixivTool
 
-PixivTool 是面向 Windows 与 macOS 的 Flutter 桌面下载器。当前版本支持 PID、排行榜、当前账户公开/非公开收藏夹，以及统一、可暂停和可恢复的下载队列。
+PixivTool 是面向 Windows 与 macOS 的 Flutter 桌面下载器。当前版本支持 PID、搜索、排行榜、当前账户公开/非公开收藏夹，以及统一、可暂停和可恢复的下载队列。
 
 ## 支持范围
 
@@ -33,12 +33,17 @@ macOS 上使用 `fvm flutter run -d macos`。Windows 构建 Flutter 插件时需
 ## 下载
 
 - PID：`{pidRoot}/{pid}/{originalFileName}`
+- 搜索：`{pidRoot}/{pid}/{originalFileName}`
 - 排行榜：`{rankRoot}/{mode[_r18]}/{content}/{pid}/{originalFileName}`
 - 收藏夹：`{bookmarkRoot}/{safeAuthorName}_{authorId}/{pid}/{originalFileName}`
 
 收藏页可在公开/非公开、标签和内容类型间筛选，支持无限滚动、同步全部、选择已加载、跨页选择、下载所选，以及下载服务端全部筛选结果。
 
 下载以响应流直接写入 `.part` 文件。应用重启后，中断中的任务会恢复为暂停状态；继续时使用 `Range` 与 `If-Range`，服务端不支持续传或实体变化时会从头下载。默认并发为 4，可在设置页调整为 1～8。
+
+## 搜索
+
+搜索页支持标签部分匹配、标签完全匹配以及标题/说明关键字三种模式。可以填写最低点赞数和最低收藏数；留空或填 0 表示不限，两个条件同时填写时必须同时满足。未设置门槛时每次加载一页；启用筛选时每次最多检查 5 页，找到匹配结果后处理完当前页即停止，点击“继续查找”可从下一页继续，也可随时停止扫描。应用会按需读取作品详情补齐计数；详情读取失败的作品不会被当作 0，并可在页面重试。搜索结果可跨页选择并加入统一下载队列。
 
 ## 代理
 

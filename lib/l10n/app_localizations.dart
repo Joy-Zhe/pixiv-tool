@@ -122,6 +122,144 @@ abstract class AppLocalizations {
   /// **'Bookmarks'**
   String get bookmarks;
 
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @searchKeyword.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag or keyword'**
+  String get searchKeyword;
+
+  /// No description provided for @searchKeywordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a tag, title, or description'**
+  String get searchKeywordHint;
+
+  /// No description provided for @searchMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Search scope'**
+  String get searchMode;
+
+  /// No description provided for @searchTagPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag (partial match)'**
+  String get searchTagPartial;
+
+  /// No description provided for @searchTagExact.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag (exact match)'**
+  String get searchTagExact;
+
+  /// No description provided for @searchTitleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Title and description'**
+  String get searchTitleDescription;
+
+  /// No description provided for @minLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum likes'**
+  String get minLikes;
+
+  /// No description provided for @minBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum bookmarks'**
+  String get minBookmarks;
+
+  /// No description provided for @searchAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchAction;
+
+  /// No description provided for @stopSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop search'**
+  String get stopSearch;
+
+  /// No description provided for @continueSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue searching'**
+  String get continueSearch;
+
+  /// No description provided for @searchProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {pages} page(s), scanned {works} works'**
+  String searchProgress(Object pages, Object works);
+
+  /// No description provided for @searchServerTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Results before filtering: {count}'**
+  String searchServerTotal(Object count);
+
+  /// No description provided for @searchResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matching work(s)'**
+  String searchResultCount(Object count);
+
+  /// No description provided for @searchDetailsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Popularity lookup failed for {count} work(s); retry'**
+  String searchDetailsFailed(Object count);
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching works'**
+  String get noSearchResults;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a tag or keyword to search'**
+  String get searchHint;
+
+  /// No description provided for @searchKeywordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a tag or keyword'**
+  String get searchKeywordRequired;
+
+  /// No description provided for @sessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The Pixiv session has expired. Sign in again.'**
+  String get sessionExpired;
+
+  /// No description provided for @invalidPopularity.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter non-negative integers for likes or bookmarks'**
+  String get invalidPopularity;
+
+  /// No description provided for @likeCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes'**
+  String get likeCountLabel;
+
+  /// No description provided for @bookmarkCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get bookmarkCountLabel;
+
   /// No description provided for @downloads.
   ///
   /// In en, this message translates to:
