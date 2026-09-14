@@ -123,10 +123,11 @@ void main() {
     expect(requests.single.queryParameters, {
       'word': 'blue sky',
       'order': 'date_d',
-      'mode': 'all',
+      'mode': 'safe',
       'p': '1',
       's_mode': 's_tag',
       'type': 'all',
+      'ai_type': '1',
       'lang': 'en',
     });
 
@@ -143,6 +144,37 @@ void main() {
       const SearchQuery(keyword: 'blue', mode: SearchMode.titleOrDescription),
     );
     expect(requests.single.queryParameters['s_mode'], 's_tc');
+  });
+
+  test('maps AI and R18 inclusion to server search filters', () async {
+    _serveOne(server, requests, {
+      'error': false,
+      'body': {
+        'illustManga': {'data': [], 'total': 0, 'lastPage': 1},
+      },
+    });
+
+    for (final query in const [
+      SearchQuery(keyword: 'x'),
+      SearchQuery(keyword: 'x', includeAi: true),
+      SearchQuery(keyword: 'x', includeR18: true),
+      SearchQuery(keyword: 'x', includeAi: true, includeR18: true),
+    ]) {
+      await api.search(query);
+    }
+
+    expect(requests.map((uri) => uri.queryParameters['mode']), [
+      'safe',
+      'safe',
+      'all',
+      'all',
+    ]);
+    expect(requests.map((uri) => uri.queryParameters['ai_type']), [
+      '1',
+      '0',
+      '1',
+      '0',
+    ]);
   });
 
   test('uses raw page size and total for search pagination fallback', () async {

@@ -22,6 +22,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
   final _minLikes = TextEditingController();
   final _minBookmarks = TextEditingController();
   SearchMode _mode = SearchMode.tagPartial;
+  bool _includeAi = false;
+  bool _includeR18 = false;
   String? _accountId;
   bool _queueing = false;
   String? _queueError;
@@ -87,7 +89,12 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     }
     setState(() => _queueError = null);
     await _controller.search(
-      SearchQuery(keyword: _keyword.text, mode: _mode),
+      SearchQuery(
+        keyword: _keyword.text,
+        mode: _mode,
+        includeAi: _includeAi,
+        includeR18: _includeR18,
+      ),
       SearchFilter(minLikeCount: likes, minBookmarkCount: bookmarks),
     );
   }
@@ -291,6 +298,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           labelText: l10n.minBookmarks,
                         ),
                       ),
+                    ),
+                    FilterChip(
+                      selected: _includeAi,
+                      label: Text(l10n.includeAiWorks),
+                      onSelected: state.isBusy
+                          ? null
+                          : (value) => setState(() => _includeAi = value),
+                    ),
+                    FilterChip(
+                      selected: _includeR18,
+                      label: Text(l10n.includeR18Works),
+                      onSelected: state.isBusy
+                          ? null
+                          : (value) => setState(() => _includeR18 = value),
                     ),
                     FilledButton.icon(
                       onPressed: state.isBusy ? null : _search,

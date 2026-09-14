@@ -110,7 +110,7 @@ class PixivSearchController extends ChangeNotifier {
       return;
     }
     final generation = ++_generation;
-    _query = SearchQuery(keyword: keyword, mode: query.mode, page: 1);
+    _query = query.copyWith(keyword: keyword, page: 1);
     _filter = filter;
     _seenPids.clear();
     _rawItems.clear();

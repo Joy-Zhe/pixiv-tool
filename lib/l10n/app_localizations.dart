@@ -176,6 +176,18 @@ abstract class AppLocalizations {
   /// **'Minimum bookmarks'**
   String get minBookmarks;
 
+  /// No description provided for @includeAiWorks.
+  ///
+  /// In en, this message translates to:
+  /// **'Include AI-generated works'**
+  String get includeAiWorks;
+
+  /// No description provided for @includeR18Works.
+  ///
+  /// In en, this message translates to:
+  /// **'Include R18 works'**
+  String get includeR18Works;
+
   /// No description provided for @searchAction.
   ///
   /// In en, this message translates to:

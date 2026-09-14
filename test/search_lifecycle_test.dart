@@ -11,13 +11,15 @@ void main() {
     var calls = 0;
     final api = _Api((query) async {
       expect(query.page, 1);
+      expect(query.includeAi, isTrue);
+      expect(query.includeR18, isTrue);
       if (++calls == 1) throw StateError('offline');
       return _page(['1']);
     });
     final controller = PixivSearchController(apiProvider: () => api);
     addTearDown(controller.dispose);
     await controller.search(
-      const SearchQuery(keyword: 'tag'),
+      const SearchQuery(keyword: 'tag', includeAi: true, includeR18: true),
       const SearchFilter(),
     );
     expect(controller.state.error, isNotNull);

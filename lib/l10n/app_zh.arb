@@ -13,6 +13,8 @@
   "searchTitleDescription": "标题和说明",
   "minLikes": "最低点赞数",
   "minBookmarks": "最低收藏数",
+  "includeAiWorks": "包含 AI 作品",
+  "includeR18Works": "包含 R18 作品",
   "searchAction": "搜索",
   "stopSearch": "停止搜索",
   "continueSearch": "继续查找",

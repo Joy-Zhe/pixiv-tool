@@ -142,6 +142,37 @@ void main() {
     },
   );
 
+  testWidgets('submits AI and R18 inclusion and disables chips while busy', (
+    tester,
+  ) async {
+    final (api, _) = await mount(tester);
+    final pending = Completer<PageResult<SearchItem>>();
+    when(() => api.search(any())).thenAnswer((_) => pending.future);
+    final aiChip = find.widgetWithText(
+      FilterChip,
+      'Include AI-generated works',
+    );
+    final r18Chip = find.widgetWithText(FilterChip, 'Include R18 works');
+
+    expect(tester.widget<FilterChip>(aiChip).selected, isFalse);
+    expect(tester.widget<FilterChip>(r18Chip).selected, isFalse);
+    await tester.tap(aiChip);
+    await tester.tap(r18Chip);
+    await tester.enterText(find.byType(TextField).at(0), 'tag');
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pump();
+
+    final query =
+        verify(() => api.search(captureAny())).captured.single as SearchQuery;
+    expect(query.includeAi, isTrue);
+    expect(query.includeR18, isTrue);
+    expect(tester.widget<FilterChip>(aiChip).onSelected, isNull);
+    expect(tester.widget<FilterChip>(r18Chip).onSelected, isNull);
+
+    pending.complete(const PageResult(items: [], total: 0, hasMore: false));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('can stop a pending first search and continue it', (
     tester,
   ) async {

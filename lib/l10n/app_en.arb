@@ -13,6 +13,8 @@
   "searchTitleDescription": "Title and description",
   "minLikes": "Minimum likes",
   "minBookmarks": "Minimum bookmarks",
+  "includeAiWorks": "Include AI-generated works",
+  "includeR18Works": "Include R18 works",
   "searchAction": "Search",
   "stopSearch": "Stop search",
   "continueSearch": "Continue searching",

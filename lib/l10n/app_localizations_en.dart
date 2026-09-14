@@ -49,6 +49,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get minBookmarks => 'Minimum bookmarks';
 
   @override
+  String get includeAiWorks => 'Include AI-generated works';
+
+  @override
+  String get includeR18Works => 'Include R18 works';
+
+  @override
   String get searchAction => 'Search';
 
   @override

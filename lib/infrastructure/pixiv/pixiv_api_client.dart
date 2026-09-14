@@ -196,7 +196,7 @@ class PixivApiClient implements PixivApi {
           queryParameters: {
             'word': query.keyword.trim(),
             'order': 'date_d',
-            'mode': 'all',
+            'mode': query.includeR18 ? 'all' : 'safe',
             'p': '${query.page}',
             's_mode': switch (query.mode) {
               SearchMode.tagPartial => 's_tag',
@@ -204,6 +204,7 @@ class PixivApiClient implements PixivApi {
               SearchMode.titleOrDescription => 's_tc',
             },
             'type': 'all',
+            'ai_type': query.includeAi ? '0' : '1',
             'lang': 'en',
           },
         );

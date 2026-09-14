@@ -201,18 +201,29 @@ class SearchQuery {
     required this.keyword,
     this.mode = SearchMode.tagPartial,
     this.page = 1,
+    this.includeAi = false,
+    this.includeR18 = false,
   });
 
   final String keyword;
   final SearchMode mode;
   final int page;
+  final bool includeAi;
+  final bool includeR18;
 
-  SearchQuery copyWith({String? keyword, SearchMode? mode, int? page}) =>
-      SearchQuery(
-        keyword: keyword ?? this.keyword,
-        mode: mode ?? this.mode,
-        page: page ?? this.page,
-      );
+  SearchQuery copyWith({
+    String? keyword,
+    SearchMode? mode,
+    int? page,
+    bool? includeAi,
+    bool? includeR18,
+  }) => SearchQuery(
+    keyword: keyword ?? this.keyword,
+    mode: mode ?? this.mode,
+    page: page ?? this.page,
+    includeAi: includeAi ?? this.includeAi,
+    includeR18: includeR18 ?? this.includeR18,
+  );
 }
 
 class SearchFilter {

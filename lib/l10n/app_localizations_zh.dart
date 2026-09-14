@@ -49,6 +49,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get minBookmarks => '最低收藏数';
 
   @override
+  String get includeAiWorks => '包含 AI 作品';
+
+  @override
+  String get includeR18Works => '包含 R18 作品';
+
+  @override
   String get searchAction => '搜索';
 
   @override

@@ -73,6 +73,28 @@ void main() {
     },
   );
 
+  test('preserves AI and R18 inclusion while continuing pagination', () async {
+    final api = _SearchApi(
+      pages: [
+        _page([_item('a')], hasMore: true),
+        _page([_item('b')]),
+      ],
+    );
+    final controller = PixivSearchController(apiProvider: () => api);
+    addTearDown(controller.dispose);
+
+    await controller.search(
+      const SearchQuery(keyword: ' blue ', includeAi: true, includeR18: true),
+      const SearchFilter(),
+    );
+    await controller.loadMore();
+
+    expect(api.searchQueries.map((query) => query.page), [1, 2]);
+    expect(api.searchQueries.every((query) => query.includeAi), isTrue);
+    expect(api.searchQueries.every((query) => query.includeR18), isTrue);
+    expect(api.searchQueries.every((query) => query.keyword == 'blue'), isTrue);
+  });
+
   test('preserves selection across pages and deduplicates PIDs', () async {
     final api = _SearchApi(
       pages: [
@@ -193,6 +215,7 @@ class _SearchApi implements PixivApi {
   final Map<String, int> failuresBeforeSuccess;
   final Map<String, Duration> delays;
   final searchPages = <int>[];
+  final searchQueries = <SearchQuery>[];
   final detailCalls = <String>[];
   final _remainingFailures = <String, int>{};
   int _activeDetails = 0;
@@ -200,6 +223,7 @@ class _SearchApi implements PixivApi {
 
   @override
   Future<PageResult<SearchItem>> search(SearchQuery query) async {
+    searchQueries.add(query);
     searchPages.add(query.page);
     return pages[query.page - 1];
   }
